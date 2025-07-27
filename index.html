@@ -59,23 +59,13 @@
                 <div>
                     <label for="childrenUnder4" class="block text-sm font-bold text-gray-700 mb-2">ילדים עד גיל 4:</label>
                     <select id="childrenUnder4" class="w-full p-3 border border-gray-300 rounded-lg">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
+                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                     </select>
                 </div>
                 <div>
                     <label for="childrenOver4" class="block text-sm font-bold text-gray-700 mb-2">ילדים מעל גיל 4:</label>
                     <select id="childrenOver4" class="w-full p-3 border border-gray-300 rounded-lg">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
+                        <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                     </select>
                 </div>
             </div>
@@ -123,17 +113,25 @@
             const status = document.getElementById("status").value;
             const childrenUnder4 = parseInt(document.getElementById("childrenUnder4").value);
             const childrenOver4 = parseInt(document.getElementById("childrenOver4").value);
+
             const base = status === "single" ? 5880 : 11760;
             const addUnder4 = childrenUnder4 * 1960;
             const addOver4 = childrenOver4 * 1470;
             const totalExempt = base + addUnder4 + addOver4;
             const diff = Math.max(0, income - totalExempt);
-            const tax = diff <= 3000 ? 0 : (diff - 3000) * 0.085;
+            const taxable = Math.max(0, diff - 3000);
+            const tax = taxable * 0.085;
+
             document.getElementById("results").style.display = "block";
             document.getElementById("output").innerHTML = `
-                <p>סה\"כ בסיס פטור: <strong>${totalExempt.toLocaleString()} ₪</strong></p>
-                <p>הפרש חייב במס: <strong>${diff.toLocaleString()} ₪</strong></p>
-                <p>מס איזון מחושב: <strong class="text-blue-600">${tax.toFixed(2).toLocaleString()} ₪</strong></p>
+                <p class="text-2xl font-extrabold text-blue-700">מס איזון מחושב: ${tax.toFixed(2).toLocaleString()} ₪</p>
+                <p class="mt-4">הכנסה חודשית: <strong>${income.toLocaleString()} ₪</strong></p>
+                <p>פטור בסיסי (${status === "single" ? "יחיד/ה" : "זוג"}): <strong>${base.toLocaleString()} ₪</strong></p>
+                <p>תוספת לילדים עד גיל 4: <strong>${addUnder4.toLocaleString()} ₪</strong> (${childrenUnder4} × 1,960)</p>
+                <p>תוספת לילדים מעל גיל 4: <strong>${addOver4.toLocaleString()} ₪</strong> (${childrenOver4} × 1,470)</p>
+                <p>סה"כ הכנסה פטורה: <strong>${totalExempt.toLocaleString()} ₪</strong></p>
+                <p>הפרש מהפטור: <strong>${diff.toLocaleString()} ₪</strong></p>
+                <p>חלק החייב במס (מעל 3,000 ₪): <strong>${taxable.toLocaleString()} ₪</strong></p>
             `;
         }
     </script>
