@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מחשבון מס איזון - גבעת חיים מאוחד</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Assistant', sans-serif;
+    }
+    .calculation-step {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-6 md:p-8">
+  <div class="max-w-2xl mx-auto bg-gradient-to-br from-white to-slate-50 p-6 sm:p-8 rounded-2xl shadow-xl">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="flex justify-center items-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+        מחשבון מס איזון
+      </h1>
+      <p class="text-gray-600 mt-2">סימולציה לחישוב מס איזון חודשי לחברי קהילת גבעת חיים מאוחד</p>
+    </div>
+
+    <!-- Input Form -->
+    <div class="space-y-6">
+      <div>
+        <label for="year" class="block text-sm font-bold text-gray-700 mb-2">שנת מס:</label>
+        <select id="year" class="w-full p-3 border border-gray-300 rounded-lg">
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025" selected>2025</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="netIncome" class="block text-sm font-bold text-gray-700 mb-2">הכנסה חודשית לחישוב (נטו):</label>
+        <input type="number" id="netIncome" placeholder="הקלד את סכום הנטו..." class="w-full p-3 border border-gray-300 rounded-lg">
+      </div>
+
+      <div>
+        <label for="householdStatus" class="block text-sm font-bold text-gray-700 mb-2">סטטוס בית אב:</label>
+        <select id="householdStatus" class="w-full p-3 border border-gray-300 rounded-lg">
+          <option value="single">בית אב עם חבר/ה אחד/ה</option>
+          <option value="family">בית אב עם שני חברים</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="childrenUnder4" class="block text-sm font-bold text-gray-700 mb-2">ילדים עד גיל 4:</label>
+          <select id="childrenUnder4" class="w-full p-3 border border-gray-300 rounded-lg">
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+            <option value="6">6</option><option value="7">7</option>
+          </select>
+        </div>
+        <div>
+          <label for="childrenOver4" class="block text-sm font-bold text-gray-700 mb-2">ילדים מעל גיל 4 (עד 19):</label>
+          <select id="childrenOver4" class="w-full p-3 border border-gray-300 rounded-lg">
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+            <option value="6">6</option><option value="7">7</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="calculate()" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-3 px-4 rounded-lg hover:scale-105 transition">
+        חשב מס איזון
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="mt-8 border-t-2 border-gray-200 pt-6" style="display: none;">
+      <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">תוצאות החישוב</h2>
+      <div id="calculationDetails" class="space-y-2 text-gray-700 bg-slate-50 p-4 rounded-lg mb-6 border border-slate-200"></div>
+      <div class="space-y-4 bg-blue-50 p-6 rounded-lg">
+        <div class="flex justify-between items-center text-lg">
+          <span class="font-semibold text-gray-600">הבסיס לחישוב (הפטור):</span>
+          <span id="resultBasis" class="font-bold text-gray-800"></span>
+        </div>
+        <hr class="my-2">
+        <div class="flex justify-between items-center text-xl bg-blue-100 p-4 rounded-lg">
+          <span class="font-bold text-blue-800">סה"כ מס איזון מחושב:</span>
+          <span id="resultFinalTax" class="font-extrabold text-blue-800"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = {
+      2023: { single: 5300, family: 10600, child_under_4: 1767, child_over_4: 1325 },
+      2024: { single: 5572, family: 11144, child_under_4: 1857, child_over_4: 1393 },
+      2025: { single: 5880, family: 11760, child_under_4: 1960, child_over_4: 1470 }
+    };
+
+    function formatCurrency(num) {
+      return num.toLocaleString('he-IL', { style: 'currency', currency: 'ILS', minimumFractionDigits: 2 });
+    }
+
+    function calculate() {
+      const year = document.getElementById('year').value;
+      const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
+      const householdStatus = document.getElementById('householdStatus').value;
+      const childrenUnder4 = parseInt(document.getElementById('childrenUnder4').value) || 0;
+      const childrenOver4 = parseInt(document.getElementById('childrenOver4').value) || 0;
+      const yearParams = params[year];
+      let detailsHtml = '<h3 class="text-lg font-bold text-gray-700 mb-3">אופן החישוב:</h3>';
+      let basis = householdStatus === 'single' ? yearParams.single : yearParams.family;
+      let basisHtml = '<div class="calculation-step bg-white"><strong>חישוב הבסיס (הפטור):</strong><ul>';
+      basisHtml += `<li>${householdStatus === 'single' ? 'יחיד' : 'זוג'}: ${formatCurrency(basis)}</li>`;
+
+      const multiplier = householdStatus === 'single' ? 0.5 : 1.0;
+      if (childrenUnder4) {
+        const amt = childrenUnder4 * yearParams.child_under_4 * multiplier;
+        basis += amt;
+        basisHtml += `<li>ילדים עד 4: ${formatCurrency(amt)}</li>`;
+      }
+      if (childrenOver4) {
+        const amt = childrenOver4 * yearParams.child_over_4 * multiplier;
+        basis += amt;
+        basisHtml += `<li>ילדים מעל 4: ${formatCurrency(amt)}</li>`;
+      }
+      if (householdStatus === 'single' && (childrenUnder4 || childrenOver4)) {
+        basisHtml += `<li class="text-xs text-amber-700">תוספות ילדים הופחתו ל-50%</li>`;
+      }
+
+      basisHtml += '</ul></div>';
+      detailsHtml += basisHtml;
+
+      const taxable = Math.max(0, netIncome - basis);
+      detailsHtml += `<div class="calculation-step bg-slate-100"><strong>חישוב ההפרש החייב:</strong> ${formatCurrency(netIncome)} - ${formatCurrency(basis)} = <strong>${formatCurrency(taxable)}</strong></div>`;
+
+      const freeBracket = 3000;
+      const taxed = Math.max(0, taxable - freeBracket);
+      const finalTax = taxed * 0.085;
+
+      detailsHtml += `<div class="calculation-step bg-white"><strong>החלת מדרגות מס:</strong><ul>
+        <li>פטור 0%: ${formatCurrency(Math.min(freeBracket, taxable))}</li>
+        <li>8.5%: ${formatCurrency(taxed)} = <strong>${formatCurrency(finalTax)}</strong></li>
+      </ul></div>`;
+
+      document.getElementById('calculationDetails').innerHTML = detailsHtml;
+      document.getElementById('results').style.display = 'block';
+      document.getElementById('resultBasis').innerText = formatCurrency(basis);
+      document.getElementById('resultFinalTax').innerText = formatCurrency(finalTax);
+    }
+  </script>
+</body>
+</html>
