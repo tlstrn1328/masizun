@@ -46,7 +46,7 @@
         <div class="space-y-6">
             <div>
                 <label for="income" class="block text-sm font-bold text-gray-700 mb-2">הכנסה חודשית (נטו):</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" id="income" class="w-full p-3 border border-gray-300 rounded-lg">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" id="income" class="w-full p-3 border border-gray-300 rounded-lg" oninput="formatThousands(this)">
             </div>
             <div>
                 <label for="status" class="block text-sm font-bold text-gray-700 mb-2">סטטוס בית אב:</label>
@@ -58,11 +58,25 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="childrenUnder4" class="block text-sm font-bold text-gray-700 mb-2">ילדים עד גיל 4:</label>
-                    <input type="number" id="childrenUnder4" class="w-full p-3 border border-gray-300 rounded-lg" value="0" min="0">
+                    <select id="childrenUnder4" class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
                 </div>
                 <div>
                     <label for="childrenOver4" class="block text-sm font-bold text-gray-700 mb-2">ילדים מעל גיל 4:</label>
-                    <input type="number" id="childrenOver4" class="w-full p-3 border border-gray-300 rounded-lg" value="0" min="0">
+                    <select id="childrenOver4" class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
                 </div>
             </div>
             <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">
@@ -88,7 +102,7 @@
             </ul>
             <div class="mt-6 space-y-2 text-sm text-gray-700">
                 <p>לצפייה בתקנון מס איזון: <a href="./mas-izun-takanon.pdf" target="_blank" class="text-blue-600 underline">תקנון מס איזון</a></p>
-                <p>לצפייה בהחלטת ההכנסה הפטורה לשנת 2025 (עמוד 19): <a href="https://www.kghm.co.il/login.asp?lastURL=/forum/forum/start.asp?msgID=1228063&forumID=42743" target="_blank" class="text-blue-600 underline">חוברת תקציב 2025</a></p>
+                <p>לצפייה בהחלטת ההכנסה הפטורה לשנת 2025 (עמוד 19): <a href="./takziv-2025.pdf" target="_blank" class="text-blue-600 underline">חוברת תקציב 2025</a></p>
             </div>
         </div>
 
@@ -99,8 +113,13 @@
     </div>
 
     <script>
+        function formatThousands(el) {
+            const value = el.value.replace(/,/g, '').replace(/\D/g, '');
+            el.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
         function calculate() {
-            const income = parseFloat(document.getElementById("income").value);
+            const income = parseFloat(document.getElementById("income").value.replace(/,/g, ''));
             const status = document.getElementById("status").value;
             const childrenUnder4 = parseInt(document.getElementById("childrenUnder4").value);
             const childrenOver4 = parseInt(document.getElementById("childrenOver4").value);
