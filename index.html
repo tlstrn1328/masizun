@@ -1,122 +1,118 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחשבון מס איזון - גבעת חיים מאוחד</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Assistant', sans-serif;
-        }
-        .calculation-step {
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 4px;
-        }
-        input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
-</head>
-<body class="bg-slate-100 p-4 sm:p-6 md:p-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>מחשבון מס איזון</title>
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function () {
+        const incomeInput = document.getElementById('income');
+        const childrenUnder4 = document.getElementById('kids-under-4');
+        const childrenOver4 = document.getElementById('kids-over-4');
+        const familyStatus = document.getElementById('status');
+        const result = document.getElementById('result');
+        const form = document.getElementById('form');
+        const spinner = document.getElementById('spinner');
 
-    <div class="max-w-2xl mx-auto bg-gradient-to-br from-white to-slate-50 p-6 sm:p-8 rounded-2xl shadow-xl">
+        // Format income input
+        incomeInput.addEventListener('input', function (e) {
+          const raw = e.target.value.replace(/[^\d]/g, '');
+          const formatted = Number(raw).toLocaleString('he-IL');
+          e.target.value = formatted;
+          if (formatted.length > 0) {
+            setTimeout(() => childrenUnder4.focus(), 100);
+          }
+        });
 
-        <!-- Header Section -->
-        <div class="text-center mb-8">
-            <div class="flex justify-center items-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-            </div>
-            <h1 class="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-                מחשבון מס איזון
-            </h1>
-            <p class="text-gray-600 mt-2">סימולציה לחישוב מס איזון חודשי לחברי קהילת גבעת חיים מאוחד</p>
-        </div>
+        childrenUnder4.addEventListener('input', () => {
+          setTimeout(() => childrenOver4.focus(), 100);
+        });
 
-        <!-- Input Form -->
-        <div class="space-y-6">
-            <div>
-                <label for="income" class="block text-sm font-bold text-gray-700 mb-2">הכנסה חודשית (נטו):</label>
-                <input type="number" inputmode="numeric" pattern="[0-9]*" id="income" class="w-full p-3 border border-gray-300 rounded-lg">
-            </div>
-            <div>
-                <label for="status" class="block text-sm font-bold text-gray-700 mb-2">סטטוס בית אב:</label>
-                <select id="status" class="w-full p-3 border border-gray-300 rounded-lg">
-                    <option value="single">יחיד/ה</option>
-                    <option value="family">זוג</option>
-                </select>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label for="childrenUnder4" class="block text-sm font-bold text-gray-700 mb-2">ילדים עד גיל 4:</label>
-                    <input type="number" id="childrenUnder4" class="w-full p-3 border border-gray-300 rounded-lg" value="0" min="0">
-                </div>
-                <div>
-                    <label for="childrenOver4" class="block text-sm font-bold text-gray-700 mb-2">ילדים מעל גיל 4:</label>
-                    <input type="number" id="childrenOver4" class="w-full p-3 border border-gray-300 rounded-lg" value="0" min="0">
-                </div>
-            </div>
-            <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">
-                חשב מס איזון
-            </button>
-        </div>
+        childrenOver4.addEventListener('input', () => {
+          setTimeout(() => familyStatus.focus(), 100);
+        });
 
-        <!-- Results Section -->
-        <div id="results" class="mt-8 border-t-2 border-gray-200 pt-6" style="display: none;">
-            <h2 class="text-xl font-bold mb-4">תוצאות החישוב</h2>
-            <div id="output" class="text-gray-800"></div>
-        </div>
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          spinner.style.display = 'block';
+          result.innerHTML = '';
 
-        <!-- Regulation Summary -->
-        <div class="mt-12 p-6 bg-yellow-50 border border-yellow-300 rounded-xl">
-            <h2 class="text-xl font-bold text-yellow-800 mb-4">עיקרי תקנון מס איזון</h2>
-            <ul class="list-disc pr-5 text-gray-700 space-y-2">
-                <li>הכנסה פטורה ממס (2025): ₪5,880 לחבר/ה יחיד/ה, ₪11,760 לשני חברים.</li>
-                <li>תוספות חודשיות: ₪1,960 לכל ילד עד גיל 4, ₪1,470 לכל ילד מגיל 4 ועד 19.</li>
-                <li>מדרגות מס: 0% עד ₪3,000 הפרש, ולאחר מכן 8.5% מס על היתרה.</li>
-                <li>תקרת מס איזון שנתי: ₪6,000 ליחיד/ה, ₪12,000 למשפחה.</li>
-                <li>תוספות הילדים מחושבות לפי מספר הילדים אך עשויות להשתנות לפי הסטטוס המשפחתי.</li>
-            </ul>
-            <div class="mt-6 space-y-2 text-sm text-gray-700">
-                <p>לצפייה בתקנון מס איזון: <a href="./mas-izun-takanon.pdf" target="_blank" class="text-blue-600 underline">תקנון מס איזון</a></p>
-                <p>לצפייה בהחלטת ההכנסה הפטורה לשנת 2025 (עמוד 19): <a href="https://www.kghm.co.il/login.asp?lastURL=/forum/forum/start.asp?msgID=1228063&forumID=42743" target="_blank" class="text-blue-600 underline">חוברת תקציב 2025</a></p>
-            </div>
-        </div>
+          setTimeout(() => {
+            spinner.style.display = 'none';
+            const income = parseInt(incomeInput.value.replace(/,/g, '')) || 0;
+            const kidsUnder = parseInt(childrenUnder4.value) || 0;
+            const kidsOver = parseInt(childrenOver4.value) || 0;
+            const isSingle = familyStatus.value === 'יחיד/ה';
 
-        <!-- Disclaimer -->
-        <div class="mt-8 text-xs text-gray-500 text-center">
-            <p>לתשומת לבך: מחשבון זה הינו סימולציה בלבד, ואין לראות בו ייעוץ או התחייבות. ייתכנו הבדלים בין התוצאה לבין החיוב בפועל. השימוש באחריות המשתמש בלבד.</p>
-        </div>
-    </div>
+            let yearlyCap = isSingle ? 6000 : 12000;
+            let childDiscount = kidsUnder * 500 + kidsOver * 250;
+            let totalTax = Math.max(0, yearlyCap - childDiscount);
+            let monthly = Math.round(totalTax / 12);
 
-    <script>
-        function calculate() {
-            const income = parseFloat(document.getElementById("income").value);
-            const status = document.getElementById("status").value;
-            const childrenUnder4 = parseInt(document.getElementById("childrenUnder4").value);
-            const childrenOver4 = parseInt(document.getElementById("childrenOver4").value);
-            const base = status === "single" ? 5880 : 11760;
-            const addUnder4 = childrenUnder4 * 1960;
-            const addOver4 = childrenOver4 * 1470;
-            const totalExempt = base + addUnder4 + addOver4;
-            const diff = Math.max(0, income - totalExempt);
-            const tax = diff <= 3000 ? 0 : (diff - 3000) * 0.085;
-            document.getElementById("results").style.display = "block";
-            document.getElementById("output").innerHTML = `
-                <p>סה\"כ בסיס פטור: <strong>${totalExempt.toLocaleString()} ₪</strong></p>
-                <p>הפרש חייב במס: <strong>${diff.toLocaleString()} ₪</strong></p>
-                <p>מס איזון מחושב: <strong class="text-blue-600">${tax.toFixed(2).toLocaleString()} ₪</strong></p>
-            `;
-        }
+            result.innerHTML = `מס איזון משוער: <strong>${monthly.toLocaleString('he-IL')} ₪</strong> לחודש`;
+          }, 800); // Simulated load
+        });
+      });
     </script>
-</body>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f9f9f9;
+        max-width: 600px;
+        margin: auto;
+        padding: 2rem;
+      }
+      h1 {
+        color: #0077cc;
+        font-size: 2rem;
+      }
+      label {
+        display: block;
+        margin-top: 1rem;
+      }
+      input, select, button {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 1rem;
+      }
+      #spinner {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>מחשבון מס איזון</h1>
+    <p>סימולציה לחישוב מס איזון חודשי לחברי קהילת קיבוץ גבעת חיים מאוחד</p>
+    <form id="form">
+      <label>
+        הכנסה חודשית (נטו):
+        <input id="income" inputmode="decimal" autocomplete="off" />
+      </label>
+      <label>
+        סטטוס בית אב:
+        <select id="status">
+          <option>יחיד/ה</option>
+          <option>זוג</option>
+        </select>
+      </label>
+      <label>
+        ילדים עד גיל 4:
+        <input id="kids-under-4" inputmode="numeric" />
+      </label>
+      <label>
+        ילדים מעל גיל 4:
+        <input id="kids-over-4" inputmode="numeric" />
+      </label>
+      <button type="submit">חשב מס איזון</button>
+    </form>
+    <div id="spinner">⏳ מחשב...</div>
+    <p id="result"></p>
+    <hr />
+    <p><strong>לצפייה בתקנון מס איזון:</strong> <a href="mas-izun-takanon.pdf" target="_blank">תקנון מס איזון</a></p>
+    <p><strong>לצפייה בהחלטת ההכנסה הפטורה לשנת 2025 (עמוד 19):</strong> <a href="https://www.kghm.co.il/login.asp?lastURL=/forum/forum/start.asp?msgID=1228063&forumID=42743" target="_blank">חוברת תקציב 2025</a></p>
+    <p style="font-size: 0.8rem; color: gray;">⚠️ כל החישובים הם בגדר סימולציה בלבד. אין להסתמך עליהם לצורך קבלת החלטות כספיות או משפטיות.</p>
+  </body>
 </html>
